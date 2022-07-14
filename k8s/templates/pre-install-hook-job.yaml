@@ -1,0 +1,67 @@
+{{- if .Values.job.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-job
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "3"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      name: {{ .Release.Name }}-job
+    spec:
+      serviceAccountName: {{ .Release.Name }}-job
+      restartPolicy: OnFailure
+      nodeSelector:
+{{ toYaml .Values.job.nodeSelector | indent 8 }}
+      affinity:
+{{ toYaml .Values.job.affinity | indent 8 }}
+      tolerations:
+{{ toYaml .Values.job.tolerations | indent 8 }}
+      {{- if .Values.job.priorityClassName }}
+      priorityClassName: {{ .Values.job.priorityClassName }}
+      {{- end }}
+      {{- if .Values.isolation.enabled }}
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      {{- end }}
+      containers:
+        - name: certs
+          {{- if .Values.syncer.image }}
+          image: "{{ .Values.defaultImageRegistry }}{{ .Values.syncer.image }}"
+          {{- else }}
+          image: "{{ .Values.defaultImageRegistry }}loftsh/vcluster:{{ .Chart.Version }}"
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /vcluster
+            - certs
+          args:
+            - --prefix={{ .Release.Name }}
+            - --etcd-replicas={{ .Values.etcd.replicas }}
+            {{- if .Values.serviceCIDR }}
+            - --service-cidr={{ .Values.serviceCIDR }}
+            {{- end }}
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+          volumeMounts:
+            - name: cert-storage
+              mountPath: /certs
+          resources:
+{{ toYaml .Values.job.resources | indent 12 }}
+      volumes:
+        - name: cert-storage
+          emptyDir: {}
+{{- end }}
