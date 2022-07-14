@@ -206,7 +206,7 @@ spec:
             port: 8443
             scheme: HTTPS
           failureThreshold: 60
-          periodSeconds: 2
+          initialDelaySeconds: 10
         {{- end }}
         {{- end }}
         securityContext:
