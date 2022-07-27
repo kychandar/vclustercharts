@@ -1,7 +1,7 @@
 # DefaultImageRegistry will be prepended to all deployed vcluster images, such as the vcluster pod, coredns etc.. Deployed
 # images within the vcluster will not be rewritten.
 defaultImageRegistry: ""
-serviceCIDR: 10.43.0.0/16
+
 # Plugins that should get loaded. Usually you want to apply those via 'vcluster create ... -f https://.../plugin.yaml'
 plugin: {}
 # Manually configure a plugin called test
@@ -42,10 +42,10 @@ sync:
   nodes:
     enabled: false
     # If nodes sync is enabled, and syncAllNodes = true, the virtual cluster 
-    # will sync all nodes instead of only the ones where some pods are running. 
+    # will sync all nodes instead of only the ones where some pods are running.
     syncAllNodes: false
     # nodeSelector is used to limit which nodes get synced to the vcluster,
-    # and which nodes are used to run vcluster pods. 
+    # and which nodes are used to run vcluster pods.
     # A valid string representation of a label selector must be used. 
     nodeSelector: ""
     # if true, vcluster will run with a scheduler and node changes are possible
@@ -94,7 +94,7 @@ mapServices:
 # Syncer configuration
 syncer:
   # Image to use for the syncer
-  image: loftsh/vcluster
+  # image: loftsh/vcluster
   extraArgs: []
   env: []
   livenessProbe:
@@ -209,7 +209,9 @@ service:
   # Configuration for LoadBalancer service type
   externalIPs: []
   externalTrafficPolicy: ""
-  
+  # CIDR block(s) for the service allowlist; only used when the Service type is LoadBalancer
+  loadBalancerSourceRanges: []
+
 # Configure the ingress resource that allows you to access the vcluster
 ingress:
   # Enable ingress record generation
@@ -220,7 +222,6 @@ ingress:
   ingressClassName: ""
   host: vcluster.local
   annotations:
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/backend-protocol: HTTPS
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -322,4 +323,7 @@ isolation:
 init:
   manifests: |-
     ---
+  # The contents of manifests-template will be templated using helm
+  # this allows you to use helm values inside, e.g.: {{ .Release.Name }}
+  manifestsTemplate: ''
   helm: []
