@@ -308,7 +308,7 @@ isolation:
       cpu: 100m
 
   networkPolicy:
-    enabled: false
+    enabled: true
     outgoingConnections:
       ipBlock:
         cidr: 0.0.0.0/0
