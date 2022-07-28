@@ -249,7 +249,7 @@ rbac:
     extended: false
 # Service configurations
 service:
-  type: NodePort
+  type: ClusterIP
   # Configuration for LoadBalancer service type
   externalIPs: []
   externalTrafficPolicy: ""
