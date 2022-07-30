@@ -61,21 +61,21 @@ sync:
     # Write permissions on node resource will be given to the vcluster.
     syncNodeChanges: true
   persistentvolumes:
-    enabled: false
+    enabled: true
   storageclasses:
     enabled: true
   legacy-storageclasses:
-    enabled: false
+    enabled: true
   priorityclasses:
-    enabled: false
+    enabled: true
   networkpolicies:
-    enabled: false
+    enabled: true
   volumesnapshots:
-    enabled: false
+    enabled: true
   poddisruptionbudgets:
-    enabled: false
+    enabled: true
   serviceaccounts:
-    enabled: false
+    enabled: true
 
 # Map Services between host and virtual cluster
 mapServices:
