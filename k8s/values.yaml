@@ -65,7 +65,7 @@ sync:
   storageclasses:
     enabled: true
   legacy-storageclasses:
-    enabled: true
+    enabled: false
   priorityclasses:
     enabled: true
   networkpolicies:
@@ -359,6 +359,95 @@ isolation:
 init:
   manifests: |-
     ---
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: fusionstack
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      labels:
+        app: fusionstack-agent
+      name: fusionstack-agent-sa-clusteradmin
+      namespace: fusionstack
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: fusionstack-agent-crb-clusteradmin
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cluster-admin
+    subjects:
+    - kind: ServiceAccount
+      name: fusionstack-agent-sa-clusteradmin
+      namespace: fusionstack
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: fusionstack-agent
+      name: fusionstack-agent
+      namespace: fusionstack
+    spec:
+      ports:
+      - name: http
+        nodePort: 30778
+        port: 9002
+        protocol: TCP
+        targetPort: 9002
+      selector:
+        app: fusionstack-agent
+      type: NodePort
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: fusionstack-agent-headless
+      namespace: fusionstack
+    spec:
+      clusterIP: None
+      selector:
+        app: fusionstack-agent
+    ---
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: fusionstack-agent
+      namespace: fusionstack
+    spec:
+      selector:
+        matchLabels:
+          app: fusionstack-agent
+      template:
+        metadata:
+          labels:
+            app: fusionstack-agent
+        spec:
+          automountServiceAccountToken: true
+          containers:
+          - env:
+            - name: vncURL
+              value: http://fs-virtvnc.kubevm:8001
+            - name: LOG_LEVEL
+              value: DEBUG
+            - name: AGENT_CLUSTER_ADDR
+              value: fusionstack-agent-headless
+            - name: KUBERNETES_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            image: tcl1/fs-agent:2006-01
+            imagePullPolicy: Always
+            name: fusionstack-agent
+            ports:
+            - containerPort: 9002
+              protocol: TCP
+            resources: {}
+          serviceAccountName: fusionstack-agent-sa-clusteradmin
   # The contents of manifests-template will be templated using helm
   # this allows you to use helm values inside, e.g.: {{ .Release.Name }}
   manifestsTemplate: ''
