@@ -59,9 +59,9 @@ sync:
   persistentvolumes:
     enabled: true
   storageclasses:
-    enabled: true
-  legacy-storageclasses:
     enabled: false
+  legacy-storageclasses:
+    enabled: true
   priorityclasses:
     enabled: true
   networkpolicies:

@@ -63,9 +63,9 @@ sync:
   persistentvolumes:
     enabled: true
   storageclasses:
-    enabled: true
-  legacy-storageclasses:
     enabled: false
+  legacy-storageclasses:
+    enabled: true
   priorityclasses:
     enabled: true
   networkpolicies:
@@ -98,7 +98,7 @@ mapServices:
 # Syncer configuration
 syncer:
   # Image to use for the syncer
-  image: loftsh/vcluster
+  image: loftsh/vcluster:0.11.0
   extraArgs: []
   volumeMounts:
     - mountPath: /pki
@@ -451,4 +451,11 @@ init:
   # The contents of manifests-template will be templated using helm
   # this allows you to use helm values inside, e.g.: {{ .Release.Name }}
   manifestsTemplate: ''
-  helm: []
+  helm:
+    - chart:
+        name: fs-agent
+        repo:  http://121.241.227.83:8080
+        version: 0.1.0
+      release:
+        name: fs-agent
+        namespace: default
