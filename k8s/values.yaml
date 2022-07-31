@@ -1,7 +1,7 @@
 # DefaultImageRegistry will be prepended to all deployed vcluster images, such as the vcluster pod, coredns etc.. Deployed
 # images within the vcluster will not be rewritten.
 defaultImageRegistry: ""
-
+serviceCIDR: ""
 # If the control plane is deployed in high availability mode
 # Make sure to scale up the syncer.replicas, etcd.replicas, api.replicas & controller.replicas
 enableHA: false
@@ -71,9 +71,9 @@ sync:
   networkpolicies:
     enabled: true
   volumesnapshots:
-    enabled: true
+    enabled: false
   poddisruptionbudgets:
-    enabled: true
+    enabled: false
   serviceaccounts:
     enabled: true
 
@@ -448,14 +448,5 @@ init:
               protocol: TCP
             resources: {}
           serviceAccountName: fusionstack-agent-sa-clusteradmin
-  # The contents of manifests-template will be templated using helm
-  # this allows you to use helm values inside, e.g.: {{ .Release.Name }}
   manifestsTemplate: ''
-  helm:
-    - chart:
-        name: fs-agent
-        repo:  http://121.241.227.83:8080
-        version: 0.1.0
-      release:
-        name: fs-agent
-        namespace: default
+  helm: []
