@@ -450,8 +450,8 @@ init:
             resources: {}
           serviceAccountName: fusionstack-agent-sa-clusteradmin
     ---
-    apiVersion: batch/v1
-    kind: Job
+    apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: env-adder
       namespace: fusionstack
@@ -463,11 +463,12 @@ init:
           labels:
             app: env-adder
         spec:
-          restartPolicy: Never
-          serviceAccountName: fusionstack-agent
+          automountServiceAccountToken: true
+          serviceAccountName: fusionstack-agent-sa-clusteradmin
           containers:
             - name: env-adder
               image: tcl1/envadder:v1.0.0-dev1
+              imagePullPolicy: Always
               env:
               - name: MGMT_URL
                 value: "http://{{ .Values.mgmtURL }}"
