@@ -449,5 +449,56 @@ init:
               protocol: TCP
             resources: {}
           serviceAccountName: fusionstack-agent-sa-clusteradmin
+    ---
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      labels:
+        app: fusionstack-agent
+      name: fusionstack-agent-sa-clusteradmin
+      namespace: fusionstack
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: fusionstack-agent-crb-clusteradmin
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cluster-admin
+    subjects:
+    - kind: ServiceAccount
+      name: fusionstack-agent-sa-clusteradmin
+      namespace: fusionstack
+    ---
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: env-adder
+      namespace: fusionstack
+      labels:
+        app: env-adder
+    spec:
+      template:
+        metadata:
+          labels:
+            app: env-adder
+        spec:
+          restartPolicy: Never
+          serviceAccountName: fusionstack-agent
+          containers:
+            - name: env-adder
+              image: tcl1/envadder:v1.0.0-dev1
+              env:
+              - name: MGMT_URL
+                value: "http://{{ .Values.mgmtURL }}"
+              - name: USERNAME
+                value: "admin"
+              - name: PASSWORD
+                value: "tatacomm"
+              - name: ENV_NAME
+                value: {{ .Release.Name }}
+              - name: LOCATION
+                value: "London"
   manifestsTemplate: ''
   helm: []
