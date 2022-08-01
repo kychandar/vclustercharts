@@ -1,4 +1,3 @@
-{{- if .Values.init.manifests }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,37 +10,153 @@ metadata:
     heritage: "{{ .Release.Service }}"
 data:
   manifests: |-
-    {{ .Values.init.manifests | nindent 4 | trim }}
-    {{- tpl .Values.init.manifestsTemplate $ | nindent 4 | trim }}
-  {{- if .Values.init.helm }}
-  charts: |-
-  {{- range .Values.init.helm }}
-  {{- /* only render this chart entry if either of chart or bundle is defined */}}
-  {{- if or .chart .bundle }}
-    - name: {{ .chart.name }}
-      repo: {{ .chart.repo }}
-      version: {{ .chart.version }}
-      {{- if .chart.username }}
-      username: {{ .chart.username }}
-      {{- end }}
-      {{- if .chart.password }}
-      password: {{ .chart.password }}
-      {{- end }}
-      {{- else if .bundle }}
-      bundle: {{ .bundle }}
-      {{- end }}
-      {{- if .insecure }}
-      insecure: true
-      {{- end}}
-      {{- if .values }}
-      values: |-
-        {{ .values | nindent 4 | trim }}
-      {{- end}}
-      {{- if .release }}
-      timeout: {{ .timeout | default "120s" | quote }}
-      releaseName: {{ .release.name }}
-      releaseNamespace: {{ .release.namespace }}
-      {{- end }}
-  {{- end }}
-  {{- end }}
-{{- end }}
+      ---
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: fusionstack
+      ---
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        labels:
+          app: fusionstack-agent
+        name: fusionstack-agent-sa-clusteradmin
+        namespace: fusionstack
+      ---
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: fusionstack-agent-crb-clusteradmin
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+      - kind: ServiceAccount
+        name: fusionstack-agent-sa-clusteradmin
+        namespace: fusionstack
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        labels:
+          app: fusionstack-agent
+        name: fusionstack-agent
+        namespace: fusionstack
+      spec:
+        ports:
+        - name: http
+          nodePort: 30778
+          port: 9002
+          protocol: TCP
+          targetPort: 9002
+        selector:
+          app: fusionstack-agent
+        type: NodePort
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: fusionstack-agent-headless
+        namespace: fusionstack
+      spec:
+        clusterIP: None
+        selector:
+          app: fusionstack-agent
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: fusionstack-agent
+        namespace: fusionstack
+      spec:
+        selector:
+          matchLabels:
+            app: fusionstack-agent
+        template:
+          metadata:
+            labels:
+              app: fusionstack-agent
+          spec:
+            automountServiceAccountToken: true
+            containers:
+            - env:
+              - name: vncURL
+                value: http://fs-virtvnc.kubevm:8001
+              - name: LOG_LEVEL
+                value: DEBUG
+              - name: AGENT_CLUSTER_ADDR
+                value: fusionstack-agent-headless
+              - name: KUBERNETES_POD_IP
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.podIP
+              image: tcl1/fs-agent:2006-01
+              imagePullPolicy: Always
+              name: fusionstack-agent
+              ports:
+              - containerPort: 9002
+                protocol: TCP
+              resources: {}
+            serviceAccountName: fusionstack-agent-sa-clusteradmin
+      ---
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        labels:
+          app: fusionstack-envadder
+        name: fusionstack-envadder-sa-clusteradmin
+        namespace: fusionstack
+      ---
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: fusionstack-envadder-crb-clusteradmin
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+      - kind: ServiceAccount
+        name: fusionstack-envadder-sa-clusteradmin
+        namespace: fusionstack
+      ---
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: myjob
+        namespace: fusionstack
+      spec:
+        backoffLimit: 500
+        template:
+          spec:
+            automountServiceAccountToken: true
+            serviceAccountName: fusionstack-envadder-sa-clusteradmin
+            containers:
+            - name: env-adder
+              image: tcl1/envadder:v1.0.0-dev2
+              imagePullPolicy: Always
+              env:
+              - name: MGMT_URL
+                value: "{{ tpl .Values.mgmtURL . }}"
+              - name: USERNAME
+                value: "admin"
+              - name: PASSWORD
+                value: "tatacomm"
+              - name: ENV_NAME
+                # value: sample
+                value: {{ .Release.Name }}
+              - name: LOCATION
+                value: "London"
+              # startupProbe:
+              #   httpGet:
+              #     path: https://fusionstack-agent/ping
+              #     scheme: HTTPS
+              #   initialDelaySeconds: 10
+              #   timeoutSeconds: 15
+              #   periodSeconds: 10
+              #   successThreshold: 1
+              #   failureThreshold: 24
+            restartPolicy: OnFailure
+      ---      

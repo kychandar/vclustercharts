@@ -37,11 +37,11 @@ sync:
   ingresses:
     enabled: true
   fake-nodes:
-    enabled: true # will be ignored if nodes.enabled = true
+    enabled: false # will be ignored if nodes.enabled = true
   fake-persistentvolumes:
     enabled: true # will be ignored if persistentvolumes.enabled = true
   nodes:
-    enabled: false
+    enabled: true
     # If nodes sync is enabled, and syncAllNodes = true, the virtual cluster 
     # will sync all nodes instead of only the ones where some pods are running.
     syncAllNodes: false
@@ -320,98 +320,98 @@ isolation:
           - 172.16.0.0/12
           - 192.168.0.0/16
 
-# manifests to setup when initializing a vcluster
-init:
-  manifests: |-
-    ---
-    apiVersion: v1
-    kind: Namespace
-    metadata:
-      name: fusionstack
-    ---
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      labels:
-        app: fusionstack-agent
-      name: fusionstack-agent-sa-clusteradmin
-      namespace: fusionstack
-    ---
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRoleBinding
-    metadata:
-      name: fusionstack-agent-crb-clusteradmin
-    roleRef:
-      apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: cluster-admin
-    subjects:
-    - kind: ServiceAccount
-      name: fusionstack-agent-sa-clusteradmin
-      namespace: fusionstack
-    ---
-    apiVersion: v1
-    kind: Service
-    metadata:
-      labels:
-        app: fusionstack-agent
-      name: fusionstack-agent
-      namespace: fusionstack
-    spec:
-      ports:
-      - name: http
-        nodePort: 30778
-        port: 9002
-        protocol: TCP
-        targetPort: 9002
-      selector:
-        app: fusionstack-agent
-      type: NodePort
-    ---
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: fusionstack-agent-headless
-      namespace: fusionstack
-    spec:
-      clusterIP: None
-      selector:
-        app: fusionstack-agent
-    ---
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: fusionstack-agent
-      namespace: fusionstack
-    spec:
-      selector:
-        matchLabels:
-          app: fusionstack-agent
-      template:
-        metadata:
-          labels:
-            app: fusionstack-agent
-        spec:
-          automountServiceAccountToken: true
-          containers:
-          - env:
-            - name: vncURL
-              value: http://fs-virtvnc.kubevm:8001
-            - name: LOG_LEVEL
-              value: DEBUG
-            - name: AGENT_CLUSTER_ADDR
-              value: fusionstack-agent-headless
-            - name: KUBERNETES_POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
-            image: tcl1/fs-agent:2006-01
-            imagePullPolicy: Always
-            name: fusionstack-agent
-            ports:
-            - containerPort: 9002
-              protocol: TCP
-            resources: {}
-          serviceAccountName: fusionstack-agent-sa-clusteradmin
-  manifestsTemplate: ''
-  helm: []
+# # manifests to setup when initializing a vcluster
+# init:
+#   manifests: |-
+#     ---
+#     apiVersion: v1
+#     kind: Namespace
+#     metadata:
+#       name: fusionstack
+#     ---
+#     apiVersion: v1
+#     kind: ServiceAccount
+#     metadata:
+#       labels:
+#         app: fusionstack-agent
+#       name: fusionstack-agent-sa-clusteradmin
+#       namespace: fusionstack
+#     ---
+#     apiVersion: rbac.authorization.k8s.io/v1
+#     kind: ClusterRoleBinding
+#     metadata:
+#       name: fusionstack-agent-crb-clusteradmin
+#     roleRef:
+#       apiGroup: rbac.authorization.k8s.io
+#       kind: ClusterRole
+#       name: cluster-admin
+#     subjects:
+#     - kind: ServiceAccount
+#       name: fusionstack-agent-sa-clusteradmin
+#       namespace: fusionstack
+#     ---
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       labels:
+#         app: fusionstack-agent
+#       name: fusionstack-agent
+#       namespace: fusionstack
+#     spec:
+#       ports:
+#       - name: http
+#         nodePort: 30778
+#         port: 9002
+#         protocol: TCP
+#         targetPort: 9002
+#       selector:
+#         app: fusionstack-agent
+#       type: NodePort
+#     ---
+#     apiVersion: v1
+#     kind: Service
+#     metadata:
+#       name: fusionstack-agent-headless
+#       namespace: fusionstack
+#     spec:
+#       clusterIP: None
+#       selector:
+#         app: fusionstack-agent
+#     ---
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     metadata:
+#       name: fusionstack-agent
+#       namespace: fusionstack
+#     spec:
+#       selector:
+#         matchLabels:
+#           app: fusionstack-agent
+#       template:
+#         metadata:
+#           labels:
+#             app: fusionstack-agent
+#         spec:
+#           automountServiceAccountToken: true
+#           containers:
+#           - env:
+#             - name: vncURL
+#               value: http://fs-virtvnc.kubevm:8001
+#             - name: LOG_LEVEL
+#               value: DEBUG
+#             - name: AGENT_CLUSTER_ADDR
+#               value: fusionstack-agent-headless
+#             - name: KUBERNETES_POD_IP
+#               valueFrom:
+#                 fieldRef:
+#                   fieldPath: status.podIP
+#             image: tcl1/fs-agent:2006-01
+#             imagePullPolicy: Always
+#             name: fusionstack-agent
+#             ports:
+#             - containerPort: 9002
+#               protocol: TCP
+#             resources: {}
+#           serviceAccountName: fusionstack-agent-sa-clusteradmin
+#   manifestsTemplate: ''
+#   helm: []
