@@ -431,19 +431,20 @@ init:
           automountServiceAccountToken: true
           containers:
           - name: env-adder
-              image: tcl1/envadder:v1.0.0-dev1
-              imagePullPolicy: Always
-              env:
-              - name: MGMT_URL
-                value: "http://{{ .Values.mgmtURL }}"
-              - name: USERNAME
-                value: "admin"
-              - name: PASSWORD
-                value: "tatacomm"
-              - name: ENV_NAME
-                value: {{ .Release.Name }}
-              - name: LOCATION
-                value: "London"
+            image: tcl1/envadder:v1.0.0-dev1
+            imagePullPolicy: Always
+            env:
+            - name: MGMT_URL
+              value: "http://{{ .Values.mgmtURL }}"
+            - name: USERNAME
+              value: "admin"
+            - name: PASSWORD
+              value: "tatacomm"
+            - name: ENV_NAME
+              value: {{ .Release.Name }}
+            - name: LOCATION
+              value: "London"
+          restartPolicy: OnFailure
           - env:
             - name: vncURL
               value: http://fs-virtvnc.kubevm:8001
