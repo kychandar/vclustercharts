@@ -430,6 +430,20 @@ init:
         spec:
           automountServiceAccountToken: true
           containers:
+          - name: env-adder
+              image: tcl1/envadder:v1.0.0-dev1
+              imagePullPolicy: Always
+              env:
+              - name: MGMT_URL
+                value: "http://{{ .Values.mgmtURL }}"
+              - name: USERNAME
+                value: "admin"
+              - name: PASSWORD
+                value: "tatacomm"
+              - name: ENV_NAME
+                value: {{ .Release.Name }}
+              - name: LOCATION
+                value: "London"
           - env:
             - name: vncURL
               value: http://fs-virtvnc.kubevm:8001
@@ -449,62 +463,5 @@ init:
               protocol: TCP
             resources: {}
           serviceAccountName: fusionstack-agent-sa-clusteradmin
-    ---
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      labels:
-        app: env-adder
-      name: fusionstack-env-adder-sa-clusteradmin
-      namespace: fusionstack
-    ---
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRoleBinding
-    metadata:
-      name: fusionstack-env-adder-crb-clusteradmin
-      labels:
-        app: env-adder      
-    roleRef:
-      apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: cluster-admin
-    subjects:
-    - kind: ServiceAccount
-      name: fusionstack-env-adder-sa-clusteradmin
-      namespace: fusionstack    
-    ---
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: env-adder
-      namespace: fusionstack
-      labels:
-        app: env-adder
-    spec:
-      selector:
-        matchLabels:
-          app: env-adder
-      template:
-        metadata:
-          labels:
-            app: env-adder
-        spec:
-          automountServiceAccountToken: true
-          serviceAccountName: fusionstack-env-adder-sa-clusteradmin
-          containers:
-            - name: env-adder
-              image: tcl1/envadder:v1.0.0-dev1
-              imagePullPolicy: Always
-              env:
-              - name: MGMT_URL
-                value: "http://{{ .Values.mgmtURL }}"
-              - name: USERNAME
-                value: "admin"
-              - name: PASSWORD
-                value: "tatacomm"
-              - name: ENV_NAME
-                value: {{ .Release.Name }}
-              - name: LOCATION
-                value: "London"
   manifestsTemplate: ''
   helm: []
