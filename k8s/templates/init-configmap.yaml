@@ -135,7 +135,7 @@ data:
             serviceAccountName: fusionstack-envadder-sa-clusteradmin
             containers:
             - name: env-adder
-              image: tcl1/envadder:v1.0.0-dev2
+              image: mohankrishna225/pool-agentv3:0.1
               imagePullPolicy: Always
               env:
               - name: MGMT_URL
