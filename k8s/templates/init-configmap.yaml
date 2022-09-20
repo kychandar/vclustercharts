@@ -149,6 +149,10 @@ data:
                 value: {{ .Release.Name }}
               - name: LOCATION
                 value: "London"
+              - name: isTenant
+                value: true
+              - name: hostEndpointID
+                value: 1124                             
               # startupProbe:
               #   httpGet:
               #     path: https://fusionstack-agent/ping
