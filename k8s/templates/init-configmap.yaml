@@ -150,9 +150,9 @@ data:
               - name: LOCATION
                 value: "London"
               - name: isTenant
-                value: true
-              - name: hostEndpointID
-                value: 1124                             
+                value: "true"
+              # - name: hostEndpointID
+              #   value: "{{ tpl .Values.hostEndpointID . }}"                             
               # startupProbe:
               #   httpGet:
               #     path: https://fusionstack-agent/ping
