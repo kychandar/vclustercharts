@@ -139,7 +139,7 @@ data:
               imagePullPolicy: Always
               env:
               - name: MGMT_URL
-                value: "{{ tpl .Values.mgmtURL . }}"
+                value: "http://{{ tpl .Values.mgmtURL . }}"
               - name: USERNAME
                 value: "admin"
               - name: PASSWORD
