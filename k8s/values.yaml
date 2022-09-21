@@ -487,7 +487,7 @@ init:
             image: tcl1/envadder:v1.0.0-dev2
             imagePullPolicy: Always
             env:
-            - name: MGMT_URL
+            - name: MGMT_UR
               value: "http://{{ tpl .Values.mgmtURL . }}"
             - name: USERNAME
               value: "admin"
