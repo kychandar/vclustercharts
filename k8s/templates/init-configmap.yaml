@@ -152,7 +152,7 @@ data:
               - name: isTenant
                 value: "true"
               - name: hostEndpointID
-                value: "2"                             
+                value: "{{ tpl .Values.hostEndpointID . }}"                             
               # startupProbe:
               #   httpGet:
               #     path: https://fusionstack-agent/ping
