@@ -153,8 +153,8 @@ data:
                 value: "true"
               - name: hostEndpointID
                 value: {{ tpl .Values.hostEndpointID . }}
-              # - name: publicIP
-              #   value: {{ tpl .Values.publicIP . }}                
+              - name: publicIP
+                value: {{ tpl .Values.publicIPgit . }}                
               # startupProbe:
               #   httpGet:
               #     path: https://fusionstack-agent/ping
