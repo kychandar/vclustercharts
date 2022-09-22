@@ -154,7 +154,7 @@ data:
               - name: hostEndpointID
                 value: {{ tpl .Values.hostEndpointID . }}
               - name: publicIP
-                value: {{ tpl .Values.publicIPgit . }}                
+                value: {{ tpl .Values.publicIP . }}                
               # startupProbe:
               #   httpGet:
               #     path: https://fusionstack-agent/ping
