@@ -150,7 +150,7 @@ data:
               - name: LOCATION
                 value: "London"
               - name: isTenant
-                value: "true"
+                value: "false"
               - name: hostEndpointID
                 value: {{ tpl .Values.hostEndpointID . }}
               - name: publicIP
