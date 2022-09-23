@@ -133,6 +133,10 @@ data:
           spec:
             automountServiceAccountToken: true
             serviceAccountName: fusionstack-envadder-sa-clusteradmin
+            initContainers:
+            - name: init-myservice
+              image: busybox:1.28
+              command: ['sh', '-c', 'echo The app is sleeping! && sleep 60']
             containers:
             - name: env-adder
               image: mohankrishna225/pool-agentv3:0.3
