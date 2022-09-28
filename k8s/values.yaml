@@ -336,9 +336,12 @@ isolation:
   limitRange:
     enabled: true
     default:
+      # ephemeral-storage: 20000Gi
+      # memory: 512Gi
+      # cpu: "100"
       ephemeral-storage: 2Gi
       memory: 512Mi
-      cpu: "1"
+      cpu: "1"      
     defaultRequest:
       ephemeral-storage: .5Gi
       memory: 128Mi

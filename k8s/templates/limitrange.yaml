@@ -10,7 +10,7 @@ spec:
       {{- range $key, $val := .Values.isolation.limitRange.default }}
       {{ $key }}: {{ $val | quote }}
       {{- end }}
-  - defaultRequest:
+    defaultRequest:
       {{- range $key, $val := .Values.isolation.limitRange.defaultRequest }}
       {{ $key }}: {{ $val | quote }}
       {{- end }}
