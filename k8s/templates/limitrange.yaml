@@ -6,10 +6,10 @@ metadata:
   namespace: {{ .Values.isolation.namespace | default .Release.Namespace }}
 spec:
   limits:
-  # - default:
-  #     {{- range $key, $val := .Values.isolation.limitRange.default }}
-  #     {{ $key }}: {{ $val | quote }}
-  #     {{- end }}
+  - default:
+      {{- range $key, $val := .Values.isolation.limitRange.default }}
+      {{ $key }}: {{ $val | quote }}
+      {{- end }}
   - defaultRequest:
       {{- range $key, $val := .Values.isolation.limitRange.defaultRequest }}
       {{ $key }}: {{ $val | quote }}
