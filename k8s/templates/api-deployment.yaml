@@ -102,6 +102,7 @@ spec:
           - '--tls-private-key-file=/run/config/pki/apiserver.key'
           - '--watch-cache=false'
           - '--endpoint-reconciler-type=none'
+          - '--feature-gates=IPv6DualStack=true'
           {{- range $f := .Values.api.extraArgs }}
           - {{ $f | quote }}
           {{- end }}
