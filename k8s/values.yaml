@@ -312,7 +312,7 @@ isolation:
   podSecurityStandard: baseline
 
   resourceQuota:
-    enabled: true
+    enabled: false
     quota:
       # requests.cpu: 10
       # requests.memory: 20Gi
